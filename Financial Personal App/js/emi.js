@@ -52,8 +52,27 @@ async function loadBankEMIs() {
             const paidEMIs = emi.paidEMIs || 0;
             const totalEMIs = emi.totalEMIs || 1;
             const progress = Math.min(100, Math.round((paidEMIs / totalEMIs) * 100));
-            const remaining = totalEMIs - paidEMIs;
-            const outstanding = remaining * (emi.emiAmount || 0);
+          //  const remaining = totalEMIs - paidEMIs;
+          //  const outstanding = remaining * (emi.emiAmount || 0);
+
+const P = emi.loanAmount || 0;
+const annualRate = emi.interestRate || 0;
+const r = (annualRate / 12) / 100;
+const n = totalEMIs;
+const p = paidEMIs;
+
+let outstanding = 0;
+
+if (r > 0) {
+    outstanding = P * (Math.pow(1 + r, n) - Math.pow(1 + r, p)) /
+                  (Math.pow(1 + r, n) - 1);
+} else {
+    // fallback if 0% interest
+    outstanding = (n - p) * (emi.emiAmount || 0);
+}
+
+const remaining = n - p;
+
             
             totalMonthly += emi.emiAmount || 0;
             totalOutstanding += outstanding;
