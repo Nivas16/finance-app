@@ -88,11 +88,28 @@ function logout() {
 }
 
 // Auth State Listener
-auth.onAuthStateChanged(async (user) => {
+//auth.onAuthStateChanged(async (user) => {
+ //   if (user) {
+  //      document.getElementById('authScreen').classList.add('hidden');
+   //     document.getElementById('mainApp').classList.remove('hidden');
+
+	onAuthStateChanged(auth, async (user) => {
     if (user) {
-        document.getElementById('authScreen').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        
+        console.log("✅ User logged in");
+
+        document.getElementById("mainApp").classList.remove("hidden");
+
+        // 🔥 ADD THESE TWO LINES
+        initNavigation();
+        navigateTo("dashboard");
+
+    } else {
+        console.log("❌ No user");
+    }
+});
+
+
+
         // Load user profile
         const userDoc = await db.collection('users').doc(user.uid).get();
         const userData = userDoc.data();
