@@ -13,6 +13,30 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
 });
 
+function initNavigation() {
+    console.log("🧭 Initializing navigation...");
+
+    const navLinks = document.querySelectorAll(".nav-item");
+
+    console.log("Found", navLinks.length, "nav links");
+
+    navLinks.forEach(link => {
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            console.log("🔥 CLICK WORKING");
+
+            const page = this.getAttribute("data-page");
+            console.log("📄 Navigating to:", page);
+
+            navigateTo(page);
+        });
+    });
+}
+
+
+
+
 // ============================================
 // NAVIGATION SYSTEM
 // ============================================
