@@ -781,6 +781,104 @@ body {
     margin-top: 15px;
 }
 
+/* ===========Investment =================*/
+
+/* SIP Card Styles */
+.sip-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+}
+
+.sip-card .emi-amount {
+    color: #00d4ff;
+}
+
+/* Stock Card Styles */
+.stock-card .stock-symbol {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: normal;
+}
+
+.stock-price-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Tips Grid */
+.tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.tip-card {
+    padding: 15px;
+    border-radius: var(--radius-md);
+    background: var(--dark-card);
+}
+
+.tip-buy {
+    border-left: 4px solid #00c853;
+}
+.tip-sell {
+    border-left: 4px solid #ff3b30;
+}
+.tip-hold {
+    border-left: 4px solid #ffab00;
+}
+
+.tip-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.tip-type {
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.tip-buy .tip-type {
+    background: #00c85320;
+    color: #00c853;
+}
+.tip-sell .tip-type {
+    background: #ff3b3020;
+    color: #ff3b30;
+}
+.tip-hold .tip-type {
+    background: #ffab0020;
+    color: #ffab00;
+}
+
+.tip-stock {
+    font-weight: 600;
+}
+
+.tip-target {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.tip-reason {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.tip-timeframe {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+
+
 /* ============ AI ADVISOR ============ */
 .ai-chat {
     background: var(--surface);
