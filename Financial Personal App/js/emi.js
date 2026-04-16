@@ -52,27 +52,40 @@ async function loadBankEMIs() {
             const paidEMIs = emi.paidEMIs || 0;
             const totalEMIs = emi.totalEMIs || 1;
             const progress = Math.min(100, Math.round((paidEMIs / totalEMIs) * 100));
-          //  const remaining = totalEMIs - paidEMIs;
-          //  const outstanding = remaining * (emi.emiAmount || 0);
-
-const P = emi.loanAmount || 0;
-const annualRate = emi.interestRate || 0;
-const r = (annualRate / 12) / 100;
-const n = totalEMIs;
-const p = paidEMIs;
-
-let outstanding = 0;
-
-if (r > 0) {
-    outstanding = P * (Math.pow(1 + r, n) - Math.pow(1 + r, p)) /
-                  (Math.pow(1 + r, n) - 1);
-} else {
-    // fallback if 0% interest
-    outstanding = (n - p) * (emi.emiAmount || 0);
-}
-
-const remaining = n - p;
-
+            
+            const P = emi.loanAmount || 0;
+            const annualRate = emi.interestRate || 0;
+            const n = totalEMIs;
+            const p = paidEMIs;
+            const emiAmount = emi.emiAmount || 0;
+            const calculationMethod = emi.calculationMethod || 'reducing';
+            
+            let outstanding = 0;
+            
+            if (calculationMethod === 'flat') {
+                // FLAT RATE METHOD (for Indie app personal loan)
+                if (annualRate > 0 && emiAmount > 0) {
+                    const totalInterest = P * (annualRate / 100) * (n / 12);
+                    const totalPayable = P + totalInterest;
+                    const eachEMI = totalPayable / n;
+                    const amountPaid = p * eachEMI;
+                    outstanding = totalPayable - amountPaid;
+                    if (outstanding < 0) outstanding = 0;
+                } else {
+                    outstanding = (n - p) * emiAmount;
+                }
+            } else {
+                // REDUCING BALANCE METHOD (for Home/Car/Education loans)
+                const r = (annualRate / 12) / 100;
+                if (r > 0) {
+                    outstanding = P * (Math.pow(1 + r, n) - Math.pow(1 + r, p)) /
+                                  (Math.pow(1 + r, n) - 1);
+                } else {
+                    outstanding = (n - p) * emiAmount;
+                }
+            }
+            
+            const remaining = n - p;
             
             totalMonthly += emi.emiAmount || 0;
             totalOutstanding += outstanding;
@@ -87,7 +100,7 @@ const remaining = n - p;
                     <div class="emi-card-top">
                         <div>
                             <div class="emi-name">${emi.bankName}</div>
-                            <div class="emi-type">${emi.loanType || 'Personal Loan'}</div>
+                            <div class="emi-type">${emi.loanType || 'Personal Loan'} ${calculationMethod === 'flat' ? '<span class="badge badge-info">Flat Rate</span>' : ''}</div>
                         </div>
                         <div class="emi-amount">${formatCurrency(emi.emiAmount)}/mo</div>
                     </div>
@@ -184,6 +197,13 @@ function openAddBankEMIModal() {
                     <option value="Other">Other</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>Interest Calculation Method</label>
+                <select id="emiCalcMethod">
+                    <option value="reducing">Reducing Balance (Home/Car/Education Loan)</option>
+                    <option value="flat">Flat Rate (Some Personal Loans - Indie app style)</option>
+                </select>
+            </div>
             <div class="form-row">
                 <div class="form-group">
                     <label>Loan Amount (₹)</label>
@@ -239,6 +259,7 @@ async function saveBankEMI(e) {
         await db.collection('users').doc(getUID()).collection('bankEMIs').add({
             bankName: document.getElementById('emiBank').value,
             loanType: document.getElementById('emiLoanType').value,
+            calculationMethod: document.getElementById('emiCalcMethod').value,
             loanAmount: parseFloat(document.getElementById('emiLoanAmt').value),
             interestRate: parseFloat(document.getElementById('emiRate').value),
             emiAmount: parseFloat(document.getElementById('emiAmount').value),
@@ -253,6 +274,121 @@ async function saveBankEMI(e) {
         loadBankEMIs();
     } catch (err) {
         showToast('Error saving', 'error');
+    }
+    showSyncStatus(false);
+}
+
+async function editBankEMI(id) {
+    const uid = getUID();
+    try {
+        const doc = await db.collection('users').doc(uid).collection('bankEMIs').doc(id).get();
+        if (!doc.exists) return;
+        
+        const emi = doc.data();
+        
+        openModal(`
+            <div class="modal-header">
+                <h2>Edit Bank EMI</h2>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="updateBankEMI(event, '${id}')">
+                <div class="form-group">
+                    <label>Bank Name</label>
+                    <input type="text" id="emiBank" value="${emi.bankName}" required>
+                </div>
+                <div class="form-group">
+                    <label>Loan Type</label>
+                    <select id="emiLoanType">
+                        <option value="Personal Loan" ${emi.loanType === 'Personal Loan' ? 'selected' : ''}>Personal Loan</option>
+                        <option value="Home Loan" ${emi.loanType === 'Home Loan' ? 'selected' : ''}>Home Loan</option>
+                        <option value="Car Loan" ${emi.loanType === 'Car Loan' ? 'selected' : ''}>Car Loan</option>
+                        <option value="Education Loan" ${emi.loanType === 'Education Loan' ? 'selected' : ''}>Education Loan</option>
+                        <option value="Gold Loan" ${emi.loanType === 'Gold Loan' ? 'selected' : ''}>Gold Loan</option>
+                        <option value="Credit Card" ${emi.loanType === 'Credit Card' ? 'selected' : ''}>Credit Card EMI</option>
+                        <option value="Business Loan" ${emi.loanType === 'Business Loan' ? 'selected' : ''}>Business Loan</option>
+                        <option value="Two Wheeler" ${emi.loanType === 'Two Wheeler' ? 'selected' : ''}>Two Wheeler Loan</option>
+                        <option value="Other" ${emi.loanType === 'Other' ? 'selected' : ''}>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Interest Calculation Method</label>
+                    <select id="emiCalcMethod">
+                        <option value="reducing" ${emi.calculationMethod === 'reducing' ? 'selected' : ''}>Reducing Balance (Home/Car/Education Loan)</option>
+                        <option value="flat" ${emi.calculationMethod === 'flat' ? 'selected' : ''}>Flat Rate (Some Personal Loans - Indie app style)</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Loan Amount (₹)</label>
+                        <input type="number" id="emiLoanAmt" value="${emi.loanAmount}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (%)</label>
+                        <input type="number" id="emiRate" value="${emi.interestRate}" step="0.1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>EMI Amount (₹)</label>
+                        <input type="number" id="emiAmount" value="${emi.emiAmount}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total EMIs (months)</label>
+                        <input type="number" id="emiTotal" value="${emi.totalEMIs}" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>EMIs Already Paid</label>
+                        <input type="number" id="emiPaid" value="${emi.paidEMIs || 0}">
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="month" id="emiStart" value="${emi.startDate || ''}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success btn-full mt-15">
+                    <i class="fas fa-save"></i> Update EMI
+                </button>
+            </form>
+        `);
+    } catch (err) {
+        showToast('Error loading EMI', 'error');
+    }
+}
+
+async function updateBankEMI(e, id) {
+    e.preventDefault();
+    showSyncStatus(true);
+    
+    const totalEMIs = parseInt(document.getElementById('emiTotal').value);
+    const startDate = document.getElementById('emiStart').value;
+    let endDate = '';
+    
+    if (startDate) {
+        const sd = new Date(startDate + '-01');
+        sd.setMonth(sd.getMonth() + totalEMIs);
+        endDate = sd.toISOString().slice(0, 7);
+    }
+    
+    try {
+        await db.collection('users').doc(getUID()).collection('bankEMIs').doc(id).update({
+            bankName: document.getElementById('emiBank').value,
+            loanType: document.getElementById('emiLoanType').value,
+            calculationMethod: document.getElementById('emiCalcMethod').value,
+            loanAmount: parseFloat(document.getElementById('emiLoanAmt').value),
+            interestRate: parseFloat(document.getElementById('emiRate').value),
+            emiAmount: parseFloat(document.getElementById('emiAmount').value),
+            totalEMIs: totalEMIs,
+            paidEMIs: parseInt(document.getElementById('emiPaid').value) || 0,
+            startDate: startDate,
+            endDate: endDate
+        });
+        closeModal();
+        showToast('Bank EMI updated!', 'success');
+        loadBankEMIs();
+    } catch (err) {
+        showToast('Error updating', 'error');
     }
     showSyncStatus(false);
 }
