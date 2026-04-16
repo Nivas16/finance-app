@@ -67,6 +67,9 @@ function renderPage(page) {
         case 'bills': renderBills(content); break;
         case 'rent': renderRent(content); break;
         case 'expenses': renderExpenses(content); break;
+		case 'sip':renderSIP(contentArea);break;
+		case 'stocks':renderStocks(contentArea);break;
+		case 'market-tips':renderMarketTips(contentArea);break;
         case 'ai-advisor': renderAIAdvisor(content); break;
         case 'loan-planner': renderLoanPlanner(content); break;
         case 'savings-guide': renderSavingsGuide(content); break;
