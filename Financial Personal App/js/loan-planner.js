@@ -18,16 +18,16 @@ async function renderLoanPlanner(container) {
     const el = document.getElementById('loanPlannerContent');
     
     const allLoans = [
-        ...data.bankEMIs.map(e => ({ ...e, type: '🏦 Bank Loan', name: e.bankName })),
-        ...data.personalEMIs.map(e => ({ ...e, type: '🤝 Personal', name: e.personName, interestRate: 0 })),
-        ...data.installmentList.map(e => ({ ...e, type: '🏢 Installment' }))
+        ...data.bankEMIs.map(e => ({ ...e, type: 'ðŸ¦ Bank Loan', name: e.bankName })),
+        ...data.personalEMIs.map(e => ({ ...e, type: 'ðŸ¤ Personal', name: e.personName, interestRate: 0 })),
+        ...data.installmentList.map(e => ({ ...e, type: 'ðŸ¢ Installment' }))
     ];
     
     if (allLoans.length === 0) {
         el.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-trophy"></i>
-                <h3>🎉 You're Debt Free!</h3>
+                <h3>ðŸŽ‰ You're Debt Free!</h3>
                 <p>No loans to plan for. Focus on investing and growing wealth!</p>
             </div>`;
         return;
@@ -85,7 +85,7 @@ async function renderLoanPlanner(container) {
         html += `
             <div class="timeline-item ${completed ? 'completed' : ''}">
                 <div class="timeline-date">
-                    ${completed ? '✅ Completed!' : `Closes: ${closureDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}`}
+                    ${completed ? 'âœ… Completed!' : `Closes: ${closureDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}`}
                 </div>
                 <div class="flex-between">
                     <div>
@@ -109,7 +109,7 @@ async function renderLoanPlanner(container) {
                 </div>
                 ${!completed && data.balance > 0 ? `
                     <div class="mt-10 fs-12" style="padding:8px;background:rgba(46,203,113,0.1);border-radius:6px;color:var(--secondary)">
-                        💡 If you pay extra ${formatCurrency(data.balance * 0.3)}/mo, this closes ${Math.ceil(remaining * 0.3)} months earlier!
+                        ðŸ’¡ If you pay extra ${formatCurrency(data.balance * 0.3)}/mo, this closes ${Math.ceil(remaining * 0.3)} months earlier!
                     </div>
                 ` : ''}
             </div>`;
@@ -126,7 +126,7 @@ async function renderLoanPlanner(container) {
         <div class="section mt-20" style="background:var(--surface-2);border:2px solid var(--primary)">
             <div class="section-body text-center">
                 <i class="fas fa-flag-checkered" style="font-size:40px;color:var(--primary);margin-bottom:10px"></i>
-                <h2>🎯 Debt-Free Target</h2>
+                <h2>ðŸŽ¯ Debt-Free Target</h2>
                 <div class="fs-24 fw-800 mt-10" style="color:var(--secondary)">
                     ${debtFreeDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
                 </div>
