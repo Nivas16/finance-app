@@ -6,7 +6,7 @@ function renderSavingsGuide(container) {
     container.innerHTML = `
         <div class="guide-cards">
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(46,203,113,0.15);color:var(--secondary)">💰</div>
+                <div class="guide-card-icon" style="background:rgba(46,203,113,0.15);color:var(--secondary)">ðŸ’°</div>
                 <h3>50/30/20 Rule</h3>
                 <p>The golden rule of personal finance:</p>
                 <ul>
@@ -17,19 +17,19 @@ function renderSavingsGuide(container) {
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(108,99,255,0.15);color:var(--primary)">🏦</div>
+                <div class="guide-card-icon" style="background:rgba(108,99,255,0.15);color:var(--primary)">ðŸ¦</div>
                 <h3>Emergency Fund</h3>
                 <p>Build a safety net before anything else:</p>
                 <ul>
                     <li>Save <strong>6 months of expenses</strong></li>
                     <li>Keep in liquid fund or savings account</li>
                     <li>Never invest emergency fund in stocks</li>
-                    <li>Start with even ₹500/month</li>
+                    <li>Start with even â‚¹500/month</li>
                 </ul>
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(231,76,60,0.15);color:var(--danger)">📉</div>
+                <div class="guide-card-icon" style="background:rgba(231,76,60,0.15);color:var(--danger)">ðŸ“‰</div>
                 <h3>Debt Avalanche Method</h3>
                 <p>Pay off debts smartly:</p>
                 <ul>
@@ -41,7 +41,7 @@ function renderSavingsGuide(container) {
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(243,156,18,0.15);color:var(--warning)">🛒</div>
+                <div class="guide-card-icon" style="background:rgba(243,156,18,0.15);color:var(--warning)">ðŸ›’</div>
                 <h3>Smart Shopping</h3>
                 <p>Save on everyday purchases:</p>
                 <ul>
@@ -54,7 +54,7 @@ function renderSavingsGuide(container) {
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(52,152,219,0.15);color:var(--info)">📱</div>
+                <div class="guide-card-icon" style="background:rgba(52,152,219,0.15);color:var(--info)">ðŸ“±</div>
                 <h3>Reduce Monthly Bills</h3>
                 <p>Quick wins for lower bills:</p>
                 <ul>
@@ -67,20 +67,20 @@ function renderSavingsGuide(container) {
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(155,89,182,0.15);color:#9B59B6">📈</div>
+                <div class="guide-card-icon" style="background:rgba(155,89,182,0.15);color:#9B59B6">ðŸ“ˆ</div>
                 <h3>Investment Ladder</h3>
                 <p>Start investing step by step:</p>
                 <ul>
                     <li><strong>Step 1:</strong> Emergency fund (Savings/Liquid Fund)</li>
                     <li><strong>Step 2:</strong> PPF/ELSS for tax saving</li>
-                    <li><strong>Step 3:</strong> Index Fund SIP (₹500-5000/mo)</li>
+                    <li><strong>Step 3:</strong> Index Fund SIP (â‚¹500-5000/mo)</li>
                     <li><strong>Step 4:</strong> Diversify - stocks, gold, bonds</li>
                     <li><strong>Step 5:</strong> Real estate (when ready)</li>
                 </ul>
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(26,188,156,0.15);color:#1ABC9C">🍔</div>
+                <div class="guide-card-icon" style="background:rgba(26,188,156,0.15);color:#1ABC9C">ðŸ”</div>
                 <h3>Food & Dining Savings</h3>
                 <p>Biggest daily expense reducer:</p>
                 <ul>
@@ -93,7 +93,7 @@ function renderSavingsGuide(container) {
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(230,126,34,0.15);color:#E67E22">🚗</div>
+                <div class="guide-card-icon" style="background:rgba(230,126,34,0.15);color:#E67E22">ðŸš—</div>
                 <h3>Transport Savings</h3>
                 <p>Reduce commute costs:</p>
                 <ul>
@@ -106,7 +106,7 @@ function renderSavingsGuide(container) {
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(255,107,107,0.15);color:#FF6B6B">💳</div>
+                <div class="guide-card-icon" style="background:rgba(255,107,107,0.15);color:#FF6B6B">ðŸ’³</div>
                 <h3>Credit Card Wisdom</h3>
                 <p>Use credit wisely:</p>
                 <ul>
@@ -119,7 +119,7 @@ function renderSavingsGuide(container) {
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(46,203,113,0.15);color:var(--secondary)">🎯</div>
+                <div class="guide-card-icon" style="background:rgba(46,203,113,0.15);color:var(--secondary)">ðŸŽ¯</div>
                 <h3>Financial Goals</h3>
                 <p>Set clear money goals:</p>
                 <ul>
@@ -132,7 +132,7 @@ function renderSavingsGuide(container) {
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(108,99,255,0.15);color:var(--primary)">🧠</div>
+                <div class="guide-card-icon" style="background:rgba(108,99,255,0.15);color:var(--primary)">ðŸ§ </div>
                 <h3>Money Mindset</h3>
                 <p>Psychology of saving:</p>
                 <ul>
@@ -145,16 +145,16 @@ function renderSavingsGuide(container) {
             </div>
             
             <div class="guide-card">
-                <div class="guide-card-icon" style="background:rgba(231,76,60,0.15);color:var(--danger)">⚠️</div>
+                <div class="guide-card-icon" style="background:rgba(231,76,60,0.15);color:var(--danger)">âš ï¸</div>
                 <h3>Money Mistakes to Avoid</h3>
                 <p>Common pitfalls:</p>
                 <ul>
-                    <li>❌ No emergency fund</li>
-                    <li>❌ Taking loans for lifestyle</li>
-                    <li>❌ Not tracking expenses</li>
-                    <li>❌ Ignoring insurance</li>
-                    <li>❌ Delaying investments</li>
-                    <li>❌ Lending more than you can lose</li>
+                    <li>âŒ No emergency fund</li>
+                    <li>âŒ Taking loans for lifestyle</li>
+                    <li>âŒ Not tracking expenses</li>
+                    <li>âŒ Ignoring insurance</li>
+                    <li>âŒ Delaying investments</li>
+                    <li>âŒ Lending more than you can lose</li>
                 </ul>
             </div>
         </div>
@@ -178,7 +178,7 @@ function renderPurchaseAdvisor(container) {
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label><i class="fas fa-rupee-sign"></i> Price (₹)</label>
+                            <label><i class="fas fa-rupee-sign"></i> Price (â‚¹)</label>
                             <input type="number" id="purchasePrice" placeholder="50000">
                         </div>
                         <div class="form-group">
@@ -299,7 +299,7 @@ function generatePurchaseAdvice(item, price, category, urgency, notes, data) {
     if (category === 'electronics' || category === 'appliance') {
         if (isNearSale) {
             score += 10;
-            factors.push({ icon: 'tag', type: 'positive', text: '🏷️ Sale season! Good time for electronics deals.' });
+            factors.push({ icon: 'tag', type: 'positive', text: 'ðŸ·ï¸ Sale season! Good time for electronics deals.' });
         } else {
             score -= 5;
             factors.push({ icon: 'clock', type: 'neutral', text: `Next big sale in ${getNextSaleInfo()}. Waiting could save 10-30%.` });
@@ -314,21 +314,21 @@ function generatePurchaseAdvice(item, price, category, urgency, notes, data) {
     // Emergency fund check
     if (!hasEmergencyFund) {
         score -= 15;
-        factors.push({ icon: 'exclamation-triangle', type: 'negative', text: '⚠️ You don\'t have 6 months emergency fund yet. Prioritize that.' });
+        factors.push({ icon: 'exclamation-triangle', type: 'negative', text: 'âš ï¸ You don\'t have 6 months emergency fund yet. Prioritize that.' });
     }
     
     // Final verdict
     if (score >= 60) {
         verdict = 'buy';
-        verdictTitle = '✅ Go Ahead & Buy!';
+        verdictTitle = 'âœ… Go Ahead & Buy!';
         verdictDesc = `Based on your finances, buying ${item} is reasonable right now.`;
     } else if (score >= 35) {
         verdict = 'wait';
-        verdictTitle = '⏳ Wait & Save';
+        verdictTitle = 'â³ Wait & Save';
         verdictDesc = `Better to wait ${urgency === 'want' ? '30 days' : '1-2 weeks'} and save specifically for this.`;
     } else {
         verdict = 'skip';
-        verdictTitle = '❌ Skip For Now';
+        verdictTitle = 'âŒ Skip For Now';
         verdictDesc = 'Your current financial situation suggests postponing this purchase.';
     }
     
@@ -336,7 +336,7 @@ function generatePurchaseAdvice(item, price, category, urgency, notes, data) {
         <div class="purchase-result">
             <div class="purchase-verdict">
                 <div class="verdict-icon ${verdict}">
-                    ${verdict === 'buy' ? '✅' : verdict === 'wait' ? '⏳' : '❌'}
+                    ${verdict === 'buy' ? 'âœ…' : verdict === 'wait' ? 'â³' : 'âŒ'}
                 </div>
                 <div class="verdict-text">
                     <h3>${verdictTitle}</h3>
@@ -379,16 +379,16 @@ function generatePurchaseAdvice(item, price, category, urgency, notes, data) {
             
             ${verdict !== 'buy' ? `
                 <div style="margin-top:20px;padding:15px;background:rgba(108,99,255,0.1);border-radius:8px;border:1px solid rgba(108,99,255,0.2)">
-                    <h4 style="color:var(--primary);margin-bottom:8px">💡 Smart Alternative:</h4>
+                    <h4 style="color:var(--primary);margin-bottom:8px">ðŸ’¡ Smart Alternative:</h4>
                     <p class="fs-14">Save ${formatCurrency(Math.ceil(price / 3))} for 3 months, then buy during the next sale. 
                     You'll likely save ${formatCurrency(price * 0.15)} (15%) and won't impact your finances.</p>
                 </div>
             ` : `
                 <div style="margin-top:20px;padding:15px;background:rgba(46,203,113,0.1);border-radius:8px;border:1px solid rgba(46,203,113,0.2)">
-                    <h4 style="color:var(--secondary);margin-bottom:8px">💡 Pro Tips:</h4>
-                    <p class="fs-14">• Compare prices on Amazon, Flipkart, Croma, Reliance Digital<br>
-                    • Check for bank card offers (extra 5-10% off)<br>
-                    • Use cashback apps like CRED, Cashkaro</p>
+                    <h4 style="color:var(--secondary);margin-bottom:8px">ðŸ’¡ Pro Tips:</h4>
+                    <p class="fs-14">â€¢ Compare prices on Amazon, Flipkart, Croma, Reliance Digital<br>
+                    â€¢ Check for bank card offers (extra 5-10% off)<br>
+                    â€¢ Use cashback apps like CRED, Cashkaro</p>
                 </div>
             `}
         </div>
