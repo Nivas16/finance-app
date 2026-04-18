@@ -17,15 +17,17 @@ firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
 var db = firebase.firestore();
 
-// Remove old persistence warning
+// Fix persistence warning
 db.settings({
     cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+}).catch(function(err) {
+    console.log('Cache settings error:', err.code);
 });
 
 console.log('Firebase initialized');
 
 // ============================================
-// HELPER FUNCTIONS (also used by auth.js)
+// HELPER FUNCTIONS
 // ============================================
 
 function formatCurrency(amount) {
@@ -79,7 +81,7 @@ function getUserData() {
     return window.userData || {};
 }
 
-// Make all functions global
+// Make functions global
 window.formatCurrency = formatCurrency;
 window.showToast = showToast;
 window.showSyncStatus = showSyncStatus;
