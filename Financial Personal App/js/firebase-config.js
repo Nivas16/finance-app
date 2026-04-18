@@ -1,9 +1,9 @@
 // ============================================
-// FIREBASE CONFIGURATION
-// Replace with YOUR Firebase project config
+// FIREBASE CONFIGURATION & HELPER FUNCTIONS
 // ============================================
 
-const firebaseConfig = {
+// Firebase Config
+var firebaseConfig = {
     apiKey: "AIzaSyBleH5uAsLsC6MPQ47-4LnfIUQUslY36yc",
     authDomain: "personal-finance-app-b8f8d.firebaseapp.com",
     projectId: "personal-finance-app-b8f8d",
@@ -14,12 +14,76 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+var auth = firebase.auth();
+var db = firebase.firestore();
 
-// Enable offline persistence
-db.enablePersistence().catch(err => {
-    console.log('Persistence error:', err.code);
+// Remove old persistence warning
+db.settings({
+    cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
 });
 
-console.log('🔥 Firebase initialized');
+console.log('Firebase initialized');
+
+// ============================================
+// HELPER FUNCTIONS (also used by auth.js)
+// ============================================
+
+function formatCurrency(amount) {
+    return 'Rs.' + Number(amount || 0).toLocaleString('en-IN');
+}
+
+function showToast(message, type) {
+    type = type || 'success';
+    var toast = document.getElementById('toast');
+    var toastMsg = document.getElementById('toastMessage');
+    if (!toast || !toastMsg) return;
+    
+    toast.className = 'toast ' + type;
+    toastMsg.textContent = message;
+    
+    var iconMap = { success: 'check-circle', error: 'exclamation-circle', info: 'info-circle' };
+    toast.querySelector('.toast-icon').className = 'toast-icon fas fa-' + (iconMap[type] || 'check-circle');
+    
+    toast.classList.remove('hidden');
+    setTimeout(function() { toast.classList.add('hidden'); }, 3000);
+}
+
+function showSyncStatus(syncing) {
+    syncing = syncing || false;
+    var el = document.getElementById('syncStatus');
+    if (!el) return;
+    
+    if (syncing) {
+        el.innerHTML = '<i class="fas fa-sync fa-spin"></i> Syncing...';
+        el.className = 'sync-status syncing';
+    } else {
+        el.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Synced';
+        el.className = 'sync-status';
+    }
+}
+
+function openModal(html) {
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+}
+
+function getUID() {
+    return window.currentUser.uid;
+}
+
+function getUserData() {
+    return window.userData || {};
+}
+
+// Make all functions global
+window.formatCurrency = formatCurrency;
+window.showToast = showToast;
+window.showSyncStatus = showSyncStatus;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.getUID = getUID;
+window.getUserData = getUserData;
