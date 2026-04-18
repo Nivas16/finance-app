@@ -23,7 +23,7 @@ function navigateTo(page) {
     
     // Update active nav
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+    document.querySelector(`.nav-item[data-page="${page}"]`)₹.classList.add('active');
     
     // Update title
     const titles = {
@@ -68,6 +68,8 @@ function renderPage(page) {
         case 'rent': renderRent(content); break;
         case 'expenses': renderExpenses(content); break;
 		case 'sip':renderSIP(contentArea);break;
+		case 'daily-expenses': renderDailyExpenses(content); break;
+		case 'income-edit': renderQuickIncomeEdit(content); break;
 		case 'stocks':renderStocks(contentArea);break;
 		case 'market-tips':renderMarketTips(contentArea);break;
         case 'ai-advisor': renderAIAdvisor(content); break;
@@ -82,7 +84,7 @@ function renderPage(page) {
 // ============ HELPER FUNCTIONS ============
 
 function formatCurrency(amount) {
-    return '?' + Number(amount || 0).toLocaleString('en-IN');
+    return '₹' + Number(amount || 0).toLocaleString('en-IN');
 }
 
 function showToast(message, type = 'success') {
@@ -119,7 +121,7 @@ function showSyncStatus(syncing = false) {
 }
 
 function getUID() {
-    return window.currentUser?.uid;
+    return window.currentUser₹.uid;
 }
 
 function getUserData() {
@@ -239,7 +241,7 @@ function openAddIncomeModal() {
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Amount (?)</label>
+                    <label>Amount (₹)</label>
                     <input type="number" id="incAmount" placeholder="50000" required>
                 </div>
                 <div class="form-group">
@@ -288,7 +290,7 @@ async function saveIncome(e) {
 }
 
 async function deleteIncome(id) {
-    if (!confirm('Delete this income source?')) return;
+    if (!confirm('Delete this income source₹')) return;
     showSyncStatus(true);
     try {
         await db.collection('users').doc(getUID()).collection('income').doc(id).delete();
@@ -361,17 +363,17 @@ async function loadBillsData() {
                         <div class="emi-detail">
                             <span class="emi-detail-label">Status</span>
                             <span class="emi-detail-value">
-                                <span class="tag ${bill.paid ? 'tag-success' : 'tag-danger'}">
-                                    ${bill.paid ? 'Paid' : 'Pending'}
+                                <span class="tag ${bill.paid ₹ 'tag-success' : 'tag-danger'}">
+                                    ${bill.paid ₹ 'Paid' : 'Pending'}
                                 </span>
                             </span>
                         </div>
                     </div>
                     <div class="emi-actions">
-                        <button class="btn btn-sm ${bill.paid ? 'btn-outline' : 'btn-success'}" 
+                        <button class="btn btn-sm ${bill.paid ₹ 'btn-outline' : 'btn-success'}" 
                                 onclick="toggleBillPaid('${bill.id}', ${!bill.paid})">
-                            <i class="fas fa-${bill.paid ? 'undo' : 'check'}"></i>
-                            ${bill.paid ? 'Mark Unpaid' : 'Mark Paid'}
+                            <i class="fas fa-${bill.paid ₹ 'undo' : 'check'}"></i>
+                            ${bill.paid ₹ 'Mark Unpaid' : 'Mark Paid'}
                         </button>
                         <button class="btn btn-sm btn-danger" onclick="deleteBill('${bill.id}')">
                             <i class="fas fa-trash"></i>
@@ -414,7 +416,7 @@ function openAddBillModal() {
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Amount (?)</label>
+                    <label>Amount (₹)</label>
                     <input type="number" id="billAmount" placeholder="1500" required>
                 </div>
                 <div class="form-group">
@@ -467,7 +469,7 @@ async function toggleBillPaid(id, paid) {
     showSyncStatus(true);
     try {
         await db.collection('users').doc(getUID()).collection('bills').doc(id).update({ paid });
-        showToast(paid ? 'Marked as paid' : 'Marked as unpaid', 'success');
+        showToast(paid ₹ 'Marked as paid' : 'Marked as unpaid', 'success');
         loadBillsData();
     } catch (err) {
         showToast('Error updating', 'error');
@@ -476,7 +478,7 @@ async function toggleBillPaid(id, paid) {
 }
 
 async function deleteBill(id) {
-    if (!confirm('Delete this bill?')) return;
+    if (!confirm('Delete this bill₹')) return;
     showSyncStatus(true);
     try {
         await db.collection('users').doc(getUID()).collection('bills').doc(id).delete();
@@ -578,11 +580,11 @@ function openAddRentModal() {
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Monthly Rent (?)</label>
+                    <label>Monthly Rent (₹)</label>
                     <input type="number" id="rentAmount" placeholder="10000" required>
                 </div>
                 <div class="form-group">
-                    <label>Deposit (?)</label>
+                    <label>Deposit (₹)</label>
                     <input type="number" id="rentDeposit" placeholder="20000" value="0">
                 </div>
             </div>
@@ -625,7 +627,7 @@ async function saveRent(e) {
 }
 
 async function deleteRent(id) {
-    if (!confirm('Delete rent entry?')) return;
+    if (!confirm('Delete rent entry₹')) return;
     try {
         await db.collection('users').doc(getUID()).collection('rent').doc(id).delete();
         showToast('Deleted', 'info');
@@ -642,14 +644,14 @@ function renderReports(container) {
                     <span class="stat-card-title">This Month Income</span>
                     <div class="stat-card-icon"><i class="fas fa-arrow-down"></i></div>
                 </div>
-                <div class="stat-card-value" id="repIncome">?0</div>
+                <div class="stat-card-value" id="repIncome">₹0</div>
             </div>
             <div class="stat-card expense">
                 <div class="stat-card-header">
                     <span class="stat-card-title">This Month Expenses</span>
                     <div class="stat-card-icon"><i class="fas fa-arrow-up"></i></div>
                 </div>
-                <div class="stat-card-value" id="repExpenses">?0</div>
+                <div class="stat-card-value" id="repExpenses">₹0</div>
             </div>
             <div class="stat-card balance">
                 <div class="stat-card-header">
@@ -681,12 +683,12 @@ async function loadReportData() {
     document.getElementById('repExpenses').textContent = formatCurrency(data.totalExpenses);
     
     const savingsRate = data.totalIncome > 0 
-        ? Math.round(((data.totalIncome - data.totalExpenses) / data.totalIncome) * 100) 
+        ₹ Math.round(((data.totalIncome - data.totalExpenses) / data.totalIncome) * 100) 
         : 0;
     document.getElementById('repSavingsRate').textContent = savingsRate + '%';
     
     // Pie Chart
-    const pieCtx = document.getElementById('reportPieChart')?.getContext('2d');
+    const pieCtx = document.getElementById('reportPieChart')₹.getContext('2d');
     if (pieCtx) {
         new Chart(pieCtx, {
             type: 'doughnut',
@@ -709,14 +711,14 @@ async function loadReportData() {
     }
     
     // Bar Chart
-    const barCtx = document.getElementById('reportBarChart')?.getContext('2d');
+    const barCtx = document.getElementById('reportBarChart')₹.getContext('2d');
     if (barCtx) {
         new Chart(barCtx, {
             type: 'bar',
             data: {
                 labels: ['Income', 'EMIs', 'Bills', 'Rent', 'Expenses', 'Savings'],
                 datasets: [{
-                    label: 'Amount (?)',
+                    label: 'Amount (₹)',
                     data: [
                         data.totalIncome, 
                         data.bankEMI + data.personalEMI + data.installments, 
