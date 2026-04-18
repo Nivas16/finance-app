@@ -17,13 +17,6 @@ firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
 var db = firebase.firestore();
 
-// Fix persistence warning
-db.settings({
-    cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
-}).catch(function(err) {
-    console.log('Cache settings error:', err.code);
-});
-
 console.log('Firebase initialized');
 
 // ============================================
