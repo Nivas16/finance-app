@@ -29,12 +29,11 @@ async function loadSIPs() {
         sips.forEach(function(sip) {
             var monthlyAmount = sip.data.monthlyAmount || 0;
             var installmentsDone = sip.data.installmentsDone || 0;
-            var expectedReturns = sip.data.expectedReturns || 12;
             var investedSoFar = monthlyAmount * installmentsDone;
             
             totalInvested += investedSoFar;
             
-            html += '<div class="emi-card"><div class="emi-card-top"><div><div class="emi-name">' + sip.data.fundName + '</div><div class="emi-type">' + sip.data.fundType + '</div></div><div class="emi-amount">' + formatCurrency(monthlyAmount) + '/mo</div></div><div class="emi-details"><div class="emi-detail"><span class="emi-detail-label">Invested So Far</span><span class="emi-detail-value">' + formatCurrency(investedSoFar) + '</span></div><div class="emi-detail"><span class="emi-detail-label">Expected Returns</span><span class="emi-detail-value text-success">' + expectedReturns + '% p.a.</span></div></div><div class="emi-actions"><button class="btn btn-sm btn-outline" onclick="editSIP(\'' + sip.id + '\')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="deleteSIP(\'' + sip.id + '\')"><i class="fas fa-trash"></i></button></div></div>';
+            html += '<div class="emi-card"><div class="emi-card-top"><div><div class="emi-name">' + sip.data.fundName + '</div><div class="emi-type">' + sip.data.fundType + '</div></div><div class="emi-amount">' + formatCurrency(monthlyAmount) + '/mo</div></div><div class="emi-details"><div class="emi-detail"><span class="emi-detail-label">Invested So Far</span><span class="emi-detail-value">' + formatCurrency(investedSoFar) + '</span></div><div class="emi-detail"><span class="emi-detail-label">Expected Returns</span><span class="emi-detail-value text-success">' + (sip.data.expectedReturns || 12) + '% p.a.</span></div></div><div class="emi-actions"><button class="btn btn-sm btn-danger" onclick="deleteSIP(\'' + sip.id + '\')"><i class="fas fa-trash"></i></button></div></div>';
         });
         
         html += '</div><div class="flex-between mt-20" style="padding:15px;background:linear-gradient(135deg, #1a1a2e, #16213e);border-radius:var(--radius-md)"><div><div class="fs-12 text-muted">Total Invested</div><div class="fw-800 fs-18">' + formatCurrency(totalInvested) + '</div></div></div>';
@@ -88,14 +87,9 @@ async function deleteSIP(id) {
     showSyncStatus(false);
 }
 
-function editSIP(id) {
-    // Edit functionality can be added similarly
-    showToast('Edit feature coming soon', 'info');
-}
-
-// ============ SHARE MARKET / STOCKS WITH REAL DATA ============
+// ============ SHARE MARKET WITH REAL-TIME DATA ============
 function renderStocks(container) {
-    container.innerHTML = '<div class="section"><div class="section-header"><h2 class="section-title"><i class="fas fa-chart-line"></i> Share Market Portfolio</h2><button class="btn btn-primary btn-sm" onclick="openAddStockModal()"><i class="fas fa-plus"></i> Add Stock</button></div><div class="section-body" id="stocksList"><div class="flex-center"><div class="spinner"></div></div></div></div>';
+    container.innerHTML = '<div class="section"><div class="section-header"><h2 class="section-title"><i class="fas fa-chart-line"></i> My Stock Portfolio</h2><button class="btn btn-primary btn-sm" onclick="openAddStockModal()"><i class="fas fa-plus"></i> Add Stock</button></div><div class="section-body" id="stocksList"><div class="flex-center"><div class="spinner"></div></div></div></div>';
     loadStocks();
 }
 
@@ -118,15 +112,15 @@ async function loadStocks() {
         var totalInvested = 0;
         var totalCurrent = 0;
         
-        // Fetch real stock prices
-        var stockPrices = await fetchRealStockPrices(stocks);
+        // Fetch real-time prices
+        var stockPrices = await fetchRealTimePrices(stocks);
         
         stocks.forEach(function(stock) {
             var quantity = stock.data.quantity || 0;
             var buyPrice = stock.data.buyPrice || 0;
             var invested = quantity * buyPrice;
             
-            // Use real price if available, otherwise use current price
+            // Use real-time price if available
             var currentPrice = stockPrices[stock.data.symbol] || stock.data.currentPrice || buyPrice;
             var currentValue = quantity * currentPrice;
             
@@ -137,13 +131,18 @@ async function loadStocks() {
             var gainLossPercent = invested > 0 ? (gainLoss / invested * 100) : 0;
             var gainClass = gainLoss >= 0 ? 'text-success' : 'text-danger';
             
-            html += '<div class="emi-card"><div class="emi-card-top"><div><div class="emi-name">' + stock.data.stockName + ' <span class="stock-symbol">(' + stock.data.symbol + ')</span></div><div class="emi-type">' + (stock.data.exchange || 'NSE') + '</div></div><div class="emi-amount">' + formatCurrency(currentValue) + '</div></div><div class="stock-price-info"><span>Buy: Rs.' + buyPrice.toFixed(2) + '</span><span>Current: Rs.' + currentPrice.toFixed(2) + '</span><span>Qty: ' + quantity + '</span></div><div class="emi-details"><div class="emi-detail"><span class="emi-detail-label">Invested</span><span class="emi-detail-value">' + formatCurrency(invested) + '</span></div><div class="emi-detail"><span class="emi-detail-label">Current Value</span><span class="emi-detail-value ' + gainClass + '">' + formatCurrency(currentValue) + '</span></div><div class="emi-detail"><span class="emi-detail-label">P&L</span><span class="emi-detail-value ' + gainClass + '">' + formatCurrency(gainLoss) + ' (' + (gainLossPercent >= 0 ? '+' : '') + gainLossPercent.toFixed(2) + '%)</span></div></div><div class="emi-actions"><button class="btn btn-sm btn-outline" onclick="updateStockPrice(\'' + stock.id + '\')"><i class="fas fa-sync-alt"></i> Update</button><button class="btn btn-sm btn-danger" onclick="deleteStock(\'' + stock.id + '\')"><i class="fas fa-trash"></i></button></div></div>';
+            var priceChange = stockPrices[stock.data.symbol + '_change'] || 0;
+            var changeClass = priceChange >= 0 ? 'text-success' : 'text-danger';
+            
+            html += '<div class="emi-card"><div class="emi-card-top"><div><div class="emi-name">' + stock.data.stockName + ' <span class="stock-symbol">(' + stock.data.symbol + ')</span></div><div class="emi-type">' + (stock.data.exchange || 'NSE') + '</div></div><div class="emi-amount">' + formatCurrency(currentValue) + '</div></div><div class="stock-price-info"><span>Buy: Rs.' + buyPrice.toFixed(2) + '</span><span class="' + changeClass + '">Now: Rs.' + currentPrice.toFixed(2) + ' (' + (priceChange >= 0 ? '+' : '') + priceChange.toFixed(2) + '%)</span><span>Qty: ' + quantity + '</span></div><div class="emi-details"><div class="emi-detail"><span class="emi-detail-label">Invested</span><span class="emi-detail-value">' + formatCurrency(invested) + '</span></div><div class="emi-detail"><span class="emi-detail-label">Current Value</span><span class="emi-detail-value ' + gainClass + '">' + formatCurrency(currentValue) + '</span></div><div class="emi-detail"><span class="emi-detail-label">P&L</span><span class="emi-detail-value ' + gainClass + '">' + formatCurrency(gainLoss) + ' (' + (gainLossPercent >= 0 ? '+' : '') + gainLossPercent.toFixed(2) + '%)</span></div></div><div class="emi-actions"><button class="btn btn-sm btn-danger" onclick="deleteStock(\'' + stock.id + '\')"><i class="fas fa-trash"></i></button></div></div>';
         });
         
         html += '</div>';
         
         var totalGainLoss = totalCurrent - totalInvested;
-        html += '<div class="flex-between mt-20" style="padding:15px;background:linear-gradient(135deg, #1a1a2e, #16213e);border-radius:var(--radius-md)"><div><div class="fs-12 text-muted">Total Invested</div><div class="fw-800 fs-18">' + formatCurrency(totalInvested) + '</div></div><div><div class="fs-12 text-muted">Current Value</div><div class="fw-800 fs-18">' + formatCurrency(totalCurrent) + '</div></div><div><div class="fs-12 text-muted">Total P&L</div><div class="fw-800 fs-18 ' + (totalGainLoss >= 0 ? 'text-success' : 'text-danger') + '">' + formatCurrency(totalGainLoss) + '</div></div></div>';
+        var totalGainPercent = totalInvested > 0 ? (totalGainLoss / totalInvested * 100) : 0;
+        
+        html += '<div class="flex-between mt-20" style="padding:15px;background:linear-gradient(135deg, #1a1a2e, #16213e);border-radius:var(--radius-md)"><div><div class="fs-12 text-muted">Total Invested</div><div class="fw-800 fs-18">' + formatCurrency(totalInvested) + '</div></div><div><div class="fs-12 text-muted">Current Value</div><div class="fw-800 fs-18">' + formatCurrency(totalCurrent) + '</div></div><div><div class="fs-12 text-muted">Total P&L</div><div class="fw-800 fs-18 ' + (totalGainLoss >= 0 ? 'text-success' : 'text-danger') + '">' + formatCurrency(totalGainLoss) + ' (' + (totalGainPercent >= 0 ? '+' : '') + totalGainPercent.toFixed(2) + '%)</div></div></div>';
         
         el.innerHTML = html;
     } catch (err) {
@@ -151,25 +150,37 @@ async function loadStocks() {
     }
 }
 
-// Fetch real stock prices from NSE India
-async function fetchRealStockPrices(stocks) {
+// Fetch real-time stock prices from Yahoo Finance
+async function fetchRealTimePrices(stocks) {
     var prices = {};
     
-    for (var i = 0; i < stocks.length; i++) {
-        var symbol = stocks[i].data.symbol;
-        if (!symbol) continue;
+    if (stocks.length === 0) return prices;
+    
+    // Get unique symbols
+    var symbols = stocks.map(function(s) { return s.data.symbol + '.NS'; });
+    
+    try {
+        // Yahoo Finance API
+        var url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + symbols.join(',');
         
-        try {
-            // Using NSE India official API (no API key needed)
-            var response = await fetch('https://api.nseindia.com/api/quote-equity?symbol=' + symbol);
-            var data = await response.json();
-            
-            if (data.priceInfo && data.priceInfo.lastPrice) {
-                prices[symbol] = data.priceInfo.lastPrice;
-            }
-        } catch (err) {
-            console.log('Could not fetch price for ' + symbol);
+        var response = await fetch(url);
+        var data = await response.json();
+        
+        if (data.quoteResponse && data.quoteResponse.result) {
+            data.quoteResponse.result.forEach(function(stock) {
+                var symbol = stock.symbol.replace('.NS', '');
+                prices[symbol] = stock.regularMarketPrice || 0;
+                prices[symbol + '_change'] = stock.regularMarketChangePercent || 0;
+            });
         }
+    } catch (err) {
+        console.log('Yahoo Finance API failed, using stored prices');
+        
+        // Fallback to stored prices
+        stocks.forEach(function(stock) {
+            prices[stock.data.symbol] = stock.data.currentPrice || stock.data.buyPrice || 0;
+            prices[stock.data.symbol + '_change'] = 0;
+        });
     }
     
     return prices;
@@ -179,7 +190,7 @@ function openAddStockModal() {
     openModal('<div class="modal-header"><h2><i class="fas fa-chart-line"></i> Add Stock</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
         '<form onsubmit="saveStock(event)">' +
         '<div class="form-group"><label>Stock Name</label><input type="text" id="stockName" placeholder="e.g., Reliance Industries" required></div>' +
-        '<div class="form-row"><div class="form-group"><label>NSE Symbol</label><input type="text" id="stockSymbol" placeholder="RELIANCE" style="text-transform:uppercase" required></div><div class="form-group"><label>Exchange</label><select id="stockExchange"><option value="NSE">NSE</option><option value="BSE">BSE</option></select></div></div>' +
+        '<div class="form-row"><div class="form-group"><label>NSE Symbol</label><input type="text" id="stockSymbol" placeholder="RELIANCE" style="text-transform:uppercase" required></div><div class="form-group"><label>Exchange</label><select id="stockExchange"><option value="NSE">NSE</option></select></div></div>' +
         '<div class="form-row"><div class="form-group"><label>Quantity</label><input type="number" id="stockQuantity" placeholder="10" required></div><div class="form-group"><label>Buy Price (Rs.)</label><input type="number" id="stockBuyPrice" placeholder="2500" step="0.01" required></div></div>' +
         '<button type="submit" class="btn btn-success btn-full mt-15"><i class="fas fa-save"></i> Add Stock</button></form>');
 }
@@ -208,23 +219,6 @@ async function saveStock(e) {
     showSyncStatus(false);
 }
 
-async function updateStockPrice(id) {
-    var newPrice = prompt('Enter current stock price (Rs.):');
-    if (!newPrice || isNaN(newPrice)) return;
-    
-    showSyncStatus(true);
-    try {
-        await db.collection('users').doc(getUID()).collection('stocks').doc(id).update({
-            currentPrice: parseFloat(newPrice)
-        });
-        showToast('Stock price updated!', 'success');
-        loadStocks();
-    } catch (err) {
-        showToast('Error', 'error');
-    }
-    showSyncStatus(false);
-}
-
 async function deleteStock(id) {
     if (!confirm('Remove this stock?')) return;
     showSyncStatus(true);
@@ -238,9 +232,9 @@ async function deleteStock(id) {
     showSyncStatus(false);
 }
 
-// ============ MARKET TIPS WITH REAL DATA ============
+// ============ MARKET TIPS WITH AI ANALYSIS ============
 function renderMarketTips(container) {
-    container.innerHTML = '<div class="section"><div class="section-header"><h2 class="section-title"><i class="fas fa-lightbulb"></i> Share Market Tips & Insights</h2><button class="btn btn-outline btn-sm" onclick="loadMarketTips()"><i class="fas fa-sync-alt"></i> Refresh</button></div><div class="section-body" id="marketTipsList"><div class="flex-center"><div class="spinner"></div></div></div></div>';
+    container.innerHTML = '<div class="section"><div class="section-header"><h2 class="section-title"><i class="fas fa-lightbulb"></i> AI Stock Analysis & Tips</h2><button class="btn btn-outline btn-sm" onclick="loadMarketTips()"><i class="fas fa-sync-alt"></i> Refresh</button></div><div class="section-body" id="marketTipsList"><div class="flex-center"><div class="spinner"></div></div></div></div>';
     loadMarketTips();
 }
 
@@ -248,115 +242,208 @@ async function loadMarketTips() {
     var el = document.getElementById('marketTipsList');
     
     try {
-        // Fetch real NSE market data
-        var niftyData = await fetchNSEData('NIFTY 50');
-        var sensexData = await fetchNSEData('BSESN');
+        // Fetch real market data
+        var marketData = await fetchMarketOverview();
         
-        var tips = [];
+        var html = '';
         
-        // Add market overview
-        if (niftyData) {
-            tips.push({
-                type: 'MARKET',
-                stock: 'NIFTY 50',
-                price: 'Rs.' + (niftyData.priceInfo ? niftyData.priceInfo.lastPrice : 'N/A'),
-                change: niftyData.priceInfo ? ((niftyData.priceInfo.change || 0) / niftyData.priceInfo.lastPrice * 100).toFixed(2) : 0,
-                reason: 'India\'s benchmark index'
+        // Market Overview
+        html += '<div class="market-overview mb-20" style="background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 20px; border-radius: 12px;">';
+        html += '<h3 style="margin-bottom: 15px;"><i class="fas fa-chart-line"></i> Market Overview</h3>';
+        
+        if (marketData.nifty) {
+            var niftyClass = marketData.nifty.change >= 0 ? 'text-success' : 'text-danger';
+            html += '<div style="display: flex; gap: 20px; flex-wrap: wrap;">';
+            html += '<div><div class="text-muted fs-12">NIFTY 50</div><div class="fs-20 fw-700">' + formatCurrency(marketData.nifty.price) + '</div><div class="' + niftyClass + '">' + (marketData.nifty.change >= 0 ? '+' : '') + marketData.nifty.change.toFixed(2) + '%</div></div>';
+        }
+        
+        if (marketData.sensex) {
+            var sensexClass = marketData.sensex.change >= 0 ? 'text-success' : 'text-danger';
+            html += '<div><div class="text-muted fs-12">SENSEX</div><div class="fs-20 fw-700">' + formatCurrency(marketData.sensex.price) + '</div><div class="' + sensexClass + '">' + (marketData.sensex.change >= 0 ? '+' : '') + marketData.sensex.change.toFixed(2) + '%</div></div>';
+        }
+        
+        html += '</div></div>';
+        
+        // Top Gainers
+        if (marketData.gainers && marketData.gainers.length > 0) {
+            html += '<h4 style="margin-bottom: 10px;"><i class="fas fa-arrow-up text-success"></i> Top Gainers</h4>';
+            html += '<div class="tips-grid">';
+            
+            marketData.gainers.slice(0, 5).forEach(function(stock) {
+                html += '<div class="tip-card tip-buy">';
+                html += '<div class="tip-header"><span class="tip-type">BUY</span><span class="tip-stock">' + stock.symbol + '</span></div>';
+                html += '<div class="tip-target">Rs.' + stock.price + ' <span class="text-success">+' + stock.change.toFixed(2) + '%</span></div>';
+                html += '<div class="tip-reason">Strong buying interest today</div>';
+                html += '<div class="tip-timeframe">Intraday</div>';
+                html += '</div>';
             });
+            html += '</div>';
         }
         
-        if (sensexData) {
-            tips.push({
-                type: 'MARKET',
-                stock: 'SENSEX',
-                price: 'Rs.' + (sensexData.priceInfo ? sensexData.priceInfo.lastPrice : 'N/A'),
-                change: sensexData.priceInfo ? ((sensexData.priceInfo.change || 0) / sensexData.priceInfo.lastPrice * 100).toFixed(2) : 0,
-                reason: 'BSE Benchmark Index'
+        // Top Losers
+        if (marketData.losers && marketData.losers.length > 0) {
+            html += '<h4 style="margin: 20px 0 10px;"><i class="fas fa-arrow-down text-danger"></i> Top Losers</h4>';
+            html += '<div class="tips-grid">';
+            
+            marketData.losers.slice(0, 5).forEach(function(stock) {
+                html += '<div class="tip-card tip-sell">';
+                html += '<div class="tip-header"><span class="tip-type">SELL</span><span class="tip-stock">' + stock.symbol + '</span></div>';
+                html += '<div class="tip-target">Rs.' + stock.price + ' <span class="text-danger">' + stock.change.toFixed(2) + '%</span></div>';
+                html += '<div class="tip-reason">Selling pressure today</div>';
+                html += '<div class="tip-timeframe">Intraday</div>';
+                html += '</div>';
             });
+            html += '</div>';
         }
         
-        // Add top gainers
-        var topGainers = await fetchTopGainers();
-        if (topGainers && topGainers.length > 0) {
-            topGainers.slice(0, 3).forEach(function(stock) {
-                tips.push({
-                    type: 'BUY',
-                    stock: stock.symbol,
-                    target: 'Rs.' + stock.lastPrice,
-                    reason: 'Top gainer today: +' + stock.pChange.toFixed(2) + '%',
-                    timeframe: 'Intraday'
-                });
-            });
-        }
+        // AI Recommendations
+        html += '<h4 style="margin: 20px 0 10px;"><i class="fas fa-robot" style="color: #667eea;"></i> AI Analysis</h4>';
+        html += '<div class="tips-grid">';
         
-        // If no real data, show sample
-        if (tips.length === 0) {
-            tips = [
-                { type: 'BUY', stock: 'RELIANCE', target: 'Rs.2,800', reason: 'Strong support at Rs.2,600', timeframe: 'Short Term' },
-                { type: 'BUY', stock: 'HDFC BANK', target: 'Rs.1,700', reason: 'Breakout above consolidation', timeframe: 'Medium Term' },
-                { type: 'HOLD', stock: 'TCS', target: 'Rs.4,200', reason: 'Consolidating', timeframe: 'Long Term' }
-            ];
-        }
-        
-        var html = '<div class="tips-grid">';
-        tips.forEach(function(tip) {
-            var typeClass = tip.type === 'BUY' ? 'tip-buy' : (tip.type === 'SELL' ? 'tip-sell' : 'tip-hold');
-            var changeColor = tip.change > 0 ? 'text-success' : (tip.change < 0 ? 'text-danger' : 'text-muted');
-            
-            html += '<div class="tip-card ' + typeClass + '"><div class="tip-header"><span class="tip-type">' + tip.type + '</span><span class="tip-stock">' + tip.stock + '</span></div>';
-            
-            if (tip.price) {
-                html += '<div class="tip-target">' + tip.price + ' <span class="' + changeColor + '">(' + (tip.change > 0 ? '+' : '') + tip.change + '%)</span></div>';
-            } else {
-                html += '<div class="tip-target">Target: ' + tip.target + '</div>';
-            }
-            
-            html += '<div class="tip-reason">' + tip.reason + '</div>';
-            
-            if (tip.timeframe) {
-                html += '<div class="tip-timeframe">' + tip.timeframe + '</div>';
-            }
-            
+        // AI-generated recommendations based on market data
+        var recommendations = generateAIRecommendations(marketData);
+        recommendations.forEach(function(rec) {
+            var typeClass = rec.type === 'BUY' ? 'tip-buy' : 'tip-sell';
+            html += '<div class="tip-card ' + typeClass + '">';
+            html += '<div class="tip-header"><span class="tip-type">' + rec.type + '</span><span class="tip-stock">' + rec.stock + '</span></div>';
+            html += '<div class="tip-target">Target: ' + rec.target + '</div>';
+            html += '<div class="tip-reason">' + rec.reason + '</div>';
+            html += '<div class="tip-timeframe">' + rec.timeframe + '</div>';
             html += '</div>';
         });
         
         html += '</div>';
         
-        // Add disclaimer
-        html += '<div class="disclaimer mt-20" style="padding:12px;background:rgba(46,203,113,0.1);border-radius:var(--radius-sm);font-size:12px;color:var(--text-muted)"><i class="fas fa-info-circle"></i> Data sourced from NSE India. Market data is delayed by 15 minutes. Invest wisely!</div>';
+        // Disclaimer
+        html += '<div class="disclaimer mt-20" style="padding:12px;background:rgba(255,193,7,0.1);border-radius:var(--radius-sm);font-size:12px;color:var(--text-muted)">';
+        html += '<i class="fas fa-exclamation-triangle"></i> Disclaimer: Data sourced from Yahoo Finance. This is for educational purposes only. Please do your own research before investing. Stock market investments involve risk.';
+        html += '</div>';
         
         el.innerHTML = html;
         
     } catch (err) {
         console.error(err);
-        el.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Could not load market data</h3><p>Please check your internet connection</p><button class="btn btn-primary" onclick="loadMarketTips()">Retry</button></div>';
+        el.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Could not load market data</h3><p>Market might be closed. Try during market hours (9:15 AM - 3:30 PM IST)</p><button class="btn btn-primary" onclick="loadMarketTips()">Retry</button></div>';
     }
 }
 
-async function fetchNSEData(index) {
+// Fetch market overview from Yahoo Finance
+async function fetchMarketOverview() {
+    var data = {
+        nifty: null,
+        sensex: null,
+        gainers: [],
+        losers: []
+    };
+    
     try {
-        var symbol = index === 'NIFTY 50' ? 'NIFTY%2050' : 'BSESN';
-        var response = await fetch('https://api.nseindia.com/api/quote-equity?symbol=' + symbol);
-        return await response.json();
-    } catch (err) {
-        console.log('Error fetching ' + index);
-        return null;
-    }
-}
-
-async function fetchTopGainers() {
-    try {
-        var response = await fetch('https://api.nseindia.com/api/marketData-previous?symbol=NIFTY%2050');
-        var data = await response.json();
+        // Fetch NIFTY 50 data
+        var response = await fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols=%5ENSEI,%5EBSESN');
+        var result = await response.json();
         
-        if (data && data.data) {
-            return data.data.filter(function(stock) { return stock.pChange > 0; })
-                           .sort(function(a, b) { return b.pChange - a.pChange; });
+        if (result.quoteResponse && result.quoteResponse.result) {
+            result.quoteResponse.result.forEach(function(stock) {
+                if (stock.symbol === '^BSESN') {
+                    data.sensex = {
+                        price: stock.regularMarketPrice,
+                        change: stock.regularMarketChangePercent
+                    };
+                }
+            });
         }
-    } catch (err) {
-        console.log('Error fetching gainers');
+    } catch (e) {
+        console.log('Error fetching indices');
     }
-    return [];
+    
+    try {
+        // Fetch top gainers/losers from NSE
+        var url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=RELIANCE.NS,HDFCBANK.NS,TCS.NS,ICICIBANK.NS,SBIN.NS,BAJFINANCE.NS,ADANIPOWER.NS,TITAN.NS';
+        var response2 = await fetch(url);
+        var result2 = await response2.json();
+        
+        if (result2.quoteResponse && result2.quoteResponse.result) {
+            var stocks = result2.quoteResponse.result;
+            
+            // Sort by change percent
+            stocks.sort(function(a, b) { return (b.regularMarketChangePercent || 0) - (a.regularMarketChangePercent || 0); });
+            
+            // Top gainers
+            stocks.filter(function(s) { return (s.regularMarketChangePercent || 0) > 0; }).slice(0, 5).forEach(function(stock) {
+                data.gainers.push({
+                    symbol: stock.symbol.replace('.NS', ''),
+                    price: stock.regularMarketPrice,
+                    change: stock.regularMarketChangePercent || 0
+                });
+            });
+            
+            // Top losers
+            stocks.filter(function(s) { return (s.regularMarketChangePercent || 0) < 0; }).slice(0, 5).forEach(function(stock) {
+                data.losers.push({
+                    symbol: stock.symbol.replace('.NS', ''),
+                    price: stock.regularMarketPrice,
+                    change: stock.regularMarketChangePercent || 0
+                });
+            });
+        }
+    } catch (e) {
+        console.log('Error fetching stocks');
+    }
+    
+    return data;
+}
+
+// Generate AI recommendations based on market data
+function generateAIRecommendations(marketData) {
+    var recommendations = [];
+    
+    // Find strongest gainer
+    if (marketData.gainers && marketData.gainers.length > 0) {
+        var topGainer = marketData.gainers[0];
+        if (topGainer.change > 2) {
+            recommendations.push({
+                type: 'BUY',
+                stock: topGainer.symbol,
+                target: 'Rs.' + Math.round(topGainer.price * 1.05),
+                reason: 'Strong momentum with ' + topGainer.change.toFixed(2) + '% gain. Could test new highs.',
+                timeframe: 'Short Term'
+            });
+        }
+    }
+    
+    // Find oversold stock (biggest loser with potential bounce)
+    if (marketData.losers && marketData.losers.length > 0) {
+        var topLoser = marketData.losers[0];
+        if (topLoser.change < -3) {
+            recommendations.push({
+                type: 'BUY',
+                stock: topLoser.symbol,
+                target: 'Rs.' + Math.round(topLoser.price * 1.08),
+                reason: 'Oversold by ' + Math.abs(topLoser.change).toFixed(2) + '%. Potential bounce back.',
+                timeframe: 'Short Term'
+            });
+        }
+    }
+    
+    // Default recommendations based on market sentiment
+    if (marketData.nifty && marketData.nifty.change > 0) {
+        recommendations.push({
+            type: 'BUY',
+            stock: 'INDEX FUND',
+            target: 'SIP',
+            reason: 'Market is bullish. Start SIP in Nifty 50 index fund for long-term gains.',
+            timeframe: 'Long Term'
+        });
+    } else if (marketData.nifty && marketData.nifty.change < -1) {
+        recommendations.push({
+            type: 'BUY',
+            stock: 'QUALITY STOCKS',
+            target: 'Accumulate',
+            reason: 'Market is down. Good time to accumulate quality stocks at lower prices.',
+            timeframe: 'Medium Term'
+        });
+    }
+    
+    return recommendations;
 }
 
 console.log('Investments module loaded');
