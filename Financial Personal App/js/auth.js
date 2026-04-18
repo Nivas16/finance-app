@@ -1,150 +1,159 @@
 // ============================================
-// AUTHENTICATION MODULE
+// AUTHENTICATION MODULE - FIXED
 // ============================================
 
+// Login tab switching
 function switchAuthTab(tab) {
     document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector(`.auth-tab:${tab === 'login' ? 'first-child' : 'last-child'}`).classList.add('active');
+    
+    if (tab === 'login') {
+        document.querySelector('.auth-tab:first-child').classList.add('active');
+    } else {
+        document.querySelector('.auth-tab:last-child').classList.add('active');
+    }
+    
     document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
     document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
     document.getElementById('authError').classList.add('hidden');
 }
 
-// Login
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    
-    try {
-        await auth.signInWithEmailAndPassword(email, password);
-        showToast('Welcome back!', 'success');
-    } catch (error) {
-        showAuthError(error.message);
-    }
-});
+// Make functions globally available
+window.switchAuthTab = switchAuthTab;
 
-// Register
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('regName').value;
-    const email = document.getElementById('regEmail').value;
-    const password = document.getElementById('regPassword').value;
-    const income = parseFloat(document.getElementById('regIncome').value);
+// Login Form Submit
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
     
-    try {
-        const cred = await auth.createUserWithEmailAndPassword(email, password);
-        
-        // Create user profile in Firestore
-        await db.collection('users').doc(cred.user.uid).set({
-            name: name,
-            email: email,
-            monthlyIncome: income,
-            currency: '?',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            settings: {
-                notifications: true,
-                darkMode: true,
-                budgetAlerts: true
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showAuthError('Please enter email and password');
+                return;
             }
+            
+            try {
+                showSyncStatus(true);
+                await auth.signInWithEmailAndPassword(email, password);
+                showToast('Welcome back!', 'success');
+            } catch (error) {
+                showAuthError(error.message);
+                console.error('Login error:', error);
+            }
+            showSyncStatus(false);
         });
-
-        // Create initial categories
-        const defaultCategories = [
-            { name: 'Food & Dining', icon: '??', color: '#E74C3C' },
-            { name: 'Transportation', icon: '??', color: '#3498DB' },
-            { name: 'Shopping', icon: '???', color: '#9B59B6' },
-            { name: 'Entertainment', icon: '??', color: '#F39C12' },
-            { name: 'Healthcare', icon: '??', color: '#2ECB71' },
-            { name: 'Education', icon: '??', color: '#1ABC9C' },
-            { name: 'Groceries', icon: '??', color: '#E67E22' },
-            { name: 'Personal Care', icon: '??', color: '#FF6B6B' },
-            { name: 'Miscellaneous', icon: '??', color: '#95A5A6' }
-        ];
-
-        const batch = db.batch();
-        defaultCategories.forEach(cat => {
-            const ref = db.collection('users').doc(cred.user.uid)
-                         .collection('categories').doc();
-            batch.set(ref, cat);
+    }
+    
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            if (!name || !email || !password) {
+                showAuthError('Please fill all fields');
+                return;
+            }
+            
+            try {
+                showSyncStatus(true);
+                const cred = await auth.createUserWithPassword(email, password);
+                
+                // Create user profile in Firestore
+                await db.collection('users').doc(cred.user.uid).set({
+                    name: name,
+                    email: email,
+                    monthlyIncome: 0,
+                    currency: '₹',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    settings: {
+                        notifications: true,
+                        darkMode: true,
+                        budgetAlerts: true
+                    }
+                });
+                
+                // Create default categories
+                const defaultCategories = [
+                    { name: 'Food & Dining', icon: '🍔', color: '#E74C3C' },
+                    { name: 'Transportation', icon: '🚌', color: '#3498DB' },
+                    { name: 'Shopping', icon: '🛍️', color: '#9B59B6' },
+                    { name: 'Entertainment', icon: '🎬', color: '#F39C12' },
+                    { name: 'Healthcare', icon: '🏥', color: '#2ECB71' },
+                    { name: 'Education', icon: '📚', color: '#1ABC9C' },
+                    { name: 'Groceries', icon: '🛒', color: '#E67E22' },
+                    { name: 'Personal Care', icon: '💄', color: '#FF6B6B' },
+                    { name: 'Miscellaneous', icon: '📦', color: '#95A5A6' }
+                ];
+                
+                const batch = db.batch();
+                defaultCategories.forEach(cat => {
+                    const ref = db.collection('users').doc(cred.user.uid).collection('categories').doc();
+                    batch.set(ref, cat);
+                });
+                await batch.commit();
+                
+                showToast('Account created! Please login.', 'success');
+                switchAuthTab('login');
+            } catch (error) {
+                showAuthError(error.message);
+                console.error('Register error:', error);
+            }
+            showSyncStatus(false);
         });
-        await batch.commit();
-
-        showToast('Account created successfully!', 'success');
-    } catch (error) {
-        showAuthError(error.message);
     }
 });
 
 function showAuthError(message) {
     const el = document.getElementById('authError');
-    el.textContent = message;
-    el.classList.remove('hidden');
+    if (el) {
+        el.textContent = message;
+        el.classList.remove('hidden');
+    }
 }
 
 function logout() {
-    auth.signOut();
-    showToast('Logged out', 'info');
+    auth.signOut().then(() => {
+        showToast('Logged out', 'info');
+    }).catch(err => {
+        console.error('Logout error:', err);
+    });
 }
 
 // Auth State Listener
-//auth.onAuthStateChanged(async (user) => {
- //   if (user) {
-  //      document.getElementById('authScreen').classList.add('hidden');
-   //     document.getElementById('mainApp').classList.remove('hidden');
-        
-        // Load user profile
-    //    const userDoc = await db.collection('users').doc(user.uid).get();
-     //   const userData = userDoc.data();
-        
-      //  if (userData) {
-       //     document.getElementById('userName').textContent = userData.name || 'User';
-        //    document.getElementById('userEmail').textContent = user.email;
-         //   document.getElementById('userAvatar').textContent = (userData.name || 'U')[0].toUpperCase();
-        //}
-        
-        // Store globally
-       // window.currentUser = user;
-       // window.userData = userData;
-        
-        // Load dashboard
-        //navigateTo('dashboard');
-  //  } else {
-    //    document.getElementById('authScreen').classList.remove('hidden');
-    //    document.getElementById('mainApp').classList.add('hidden');
-    //    window.currentUser = null;
-    //    window.userData = null;
- //   }
-});
-
-
-// Check if user needs to set up salary
 auth.onAuthStateChanged(async (user) => {
     if (user) {
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         
-        // Load user profile
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        const userData = userDoc.data();
-        
-        if (userData) {
-            document.getElementById('userName').textContent = userData.name || 'User';
-            document.getElementById('userEmail').textContent = user.email;
-            document.getElementById('userAvatar').textContent = (userData.name || 'U')[0].toUpperCase();
+        try {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            const userData = userDoc.data();
+            
+            if (userData) {
+                document.getElementById('userName').textContent = userData.name || 'User';
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userAvatar').textContent = (userData.name || 'U')[0].toUpperCase();
+                
+                window.currentUser = user;
+                window.userData = userData;
+                
+                // Check if first time user needs salary setup
+                if (userData && !userData.hasCompletedSetup && userData.monthlyIncome === 0) {
+                    showSalarySetupModal(user.uid);
+                }
+                
+                // Load dashboard
+                navigateTo('dashboard');
+            }
+        } catch (err) {
+            console.error('Error loading user data:', err);
         }
-        
-        // Store globally
-        window.currentUser = user;
-        window.userData = userData;
-        
-        // NEW: Check if first time user needs salary setup
-        if (userData && !userData.hasCompletedSetup) {
-            showSalarySetupModal(user.uid);
-        }
-        
-        // Load dashboard
-        navigateTo('dashboard');
     } else {
         document.getElementById('authScreen').classList.remove('hidden');
         document.getElementById('mainApp').classList.add('hidden');
@@ -153,7 +162,7 @@ auth.onAuthStateChanged(async (user) => {
     }
 });
 
-// NEW: Salary setup modal (shown after first login)
+// Salary setup modal
 function showSalarySetupModal(uid) {
     openModal(`
         <div class="modal-header">
@@ -197,7 +206,6 @@ function showSalarySetupModal(uid) {
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             
-            // Also add to income collection
             await db.collection('users').doc(uid).collection('income').add({
                 source: 'Salary',
                 amount: income,
@@ -210,10 +218,14 @@ function showSalarySetupModal(uid) {
             closeModal();
             showToast('Income set up successfully!', 'success');
             
-            // Update global userData
             window.userData.monthlyIncome = income;
         } catch (error) {
             showToast('Error saving: ' + error.message, 'error');
         }
         showSyncStatus(false);
     });
+}
+
+// Make functions global
+window.logout = logout;
+window.showSalarySetupModal = showSalarySetupModal;
