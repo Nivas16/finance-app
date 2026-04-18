@@ -150,26 +150,32 @@ async function loadStocks() {
     }
 }
 
-// Fetch real-time prices from Yahoo Finance (works from browser)
+// Fetch real-time prices from Yahoo Finance with CORS proxy
 async function fetchRealTimePrices(stocks) {
     var prices = {};
     
     if (stocks.length === 0) return prices;
     
     // Get unique symbols with .NS suffix for NSE
-    var symbols = stocks.map(function(s) { return s.data.symbol + '.NS'; });
+    var symbols = stocks.map(function(s) { 
+        return s.data.symbol + '.NS'; 
+    });
+    
+    // Create URL with CORS proxy
+    var baseUrl = 'https://api.allorigins.win/get?url=';
+    var encodedUrl = encodeURIComponent('https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + symbols.join(','));
+    var url = baseUrl + encodedUrl;
     
     try {
-        var url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(symbols.join(','));
-        
         var response = await fetch(url);
         
         if (!response.ok) throw new Error('API error');
         
         var data = await response.json();
+        var content = JSON.parse(data.contents);
         
-        if (data.quoteResponse && data.quoteResponse.result) {
-            data.quoteResponse.result.forEach(function(stock) {
+        if (content.quoteResponse && content.quoteResponse.result) {
+            content.quoteResponse.result.forEach(function(stock) {
                 var symbol = stock.symbol.replace('.NS', '');
                 prices[symbol] = stock.regularMarketPrice || 0;
                 prices[symbol + '_change'] = stock.regularMarketChangePercent || 0;
@@ -308,11 +314,11 @@ async function loadMarketTips() {
         
     } catch (err) {
         console.error(err);
-        el.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Could not load market data</h3><p>Market might be closed. Try during market hours (Mon-Fri, 9:15 AM - 3:30 PM IST)</p><button class="btn btn-primary" onclick="loadMarketTips()">Retry</button></div>';
+        el.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Could not load market data</h3><p>Market data requires internet connection. Please check your connection and try again.</p><button class="btn btn-primary" onclick="loadMarketTips()">Retry</button></div>';
     }
 }
 
-// Fetch market data from Yahoo Finance
+// Fetch market data from Yahoo Finance with CORS proxy
 async function fetchMarketData() {
     var data = {
         nifty: null,
@@ -327,17 +333,21 @@ async function fetchMarketData() {
         'BAJFINANCE.NS', 'ADANIPOWER.NS', 'TITAN.NS', 'ADANIENT.NS', 'SUNPHARMA.NS'
     ];
     
+    // Create URL with CORS proxy
+    var baseUrl = 'https://api.allorigins.win/get?url=';
+    var encodedUrl = encodeURIComponent('https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(popularStocks.join(',')));
+    var url = baseUrl + encodedUrl;
+    
     try {
-        var url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(popularStocks.join(','));
-        
         var response = await fetch(url);
         
         if (!response.ok) throw new Error('Failed to fetch');
         
         var result = await response.json();
+        var content = JSON.parse(result.contents);
         
-        if (result.quoteResponse && result.quoteResponse.result) {
-            var stocks = result.quoteResponse.result;
+        if (content.quoteResponse && content.quoteResponse.result) {
+            var stocks = content.quoteResponse.result;
             
             // Sort by change percent
             stocks.sort(function(a, b) { return (b.regularMarketChangePercent || 0) - (a.regularMarketChangePercent || 0); });
